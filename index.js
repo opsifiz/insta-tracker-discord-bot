@@ -10,22 +10,33 @@ const APIFY_TOKEN = process.env.APIFY_TOKEN;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 async function getInstagramStats(username) {
-  const res = await fetch(`https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      usernames: [username],
-      resultsLimit: 1,
-    }),
-  });
+  const res = await fetch(
+    `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        usernames: [username],
+        resultsLimit: 1,
+      }),
+    }
+  );
 
   const data = await res.json();
 
-  const user = data[0];
+  const item = data?.[0];
+  const profile = item?.profile_results;
+
+  if (!profile) {
+    throw new Error("No profile_results found from Apify response");
+  }
 
   return {
-    followers: user.followersCount,
-    following: user.followsCount,
+    followers: profile.followers ?? 0,
+    following: profile.following ?? 0,
+    fullName: profile.full_name ?? username,
+    bio: profile.biography ?? "",
+    isPrivate: profile.is_private ?? false,
   };
 }
 
