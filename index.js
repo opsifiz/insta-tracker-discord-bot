@@ -5,6 +5,7 @@ dotenv.config();
 
 const TOKEN = process.env.TOKEN;
 const DEFAULT_USERNAME = process.env.INSTAGRAM_USERNAME;
+const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
