@@ -61,18 +61,17 @@ client.on(Events.InteractionCreate, async interaction => {
 
   if (interaction.commandName === 'about') {
     try {
-      if (interaction.replied || interaction.deferred) return;
-
-      await interaction.reply({
-        content:
-          `🤖 **Instagram Stats Bot**\n\n` +
-          `บอทสำหรับดึงข้อมูล Instagram แบบ real-time\n\n` +
-          `📋 **คำสั่งที่ใช้ได้:**\n` +
-          `• /get — ดึง stats ของ ${DEFAULT_USERNAME}\n` +
-          `• /get username:<ชื่อผู้ใช้>\n` +
-          `• /about`,
-        ephemeral: false,
-      });
+        if (interaction.commandName === 'about') {
+          await interaction.reply(
+            `🤖 **Instagram Stats Bot**\n\n` +
+            `บอทสำหรับดึงข้อมูล Instagram แบบ real-time\n\n` +
+            `📋 **คำสั่งที่ใช้ได้:**\n` +
+            `• \`/get\` — ดึง stats ของ \`${DEFAULT_USERNAME}\`\n` +
+            `• \`/get username:<ชื่อผู้ใช้>\` — ดึง stats ของ username ที่ระบุ\n` +
+            `• \`/about\` — แสดงข้อมูลบอทนี้`
+          );
+          return;
+        }
     } catch (e) {
       console.error(e);
     }
