@@ -1,5 +1,4 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { Instaloader } from '@vicociv/instaloader';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,48 +8,25 @@ const DEFAULT_USERNAME = process.env.INSTAGRAM_USERNAME;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-const L = new Instaloader();
-
 async function getInstagramStats(username) {
-  const profile = await L.getProfile(username);
+  const res = await fetch(`https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      usernames: [username],
+      resultsLimit: 1,
+    }),
+  });
+
+  const data = await res.json();
+
+  const user = data[0];
 
   return {
-    followers: await profile.getFollowers(),
-    following: await profile.getFollowees(),
+    followers: user.followersCount,
+    following: user.followsCount,
   };
 }
-
-// async function getInstagramStats(username) {
-//   const response = await fetch(
-//     `https://www.instagram.com/${username}/`,
-//     {
-//       headers: {
-//         "User-Agent":
-//           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-//       },
-//     }
-//   );
-
-//   if (!response.ok) {
-//     throw new Error(`HTTP ${response.status}`);
-//   }
-
-//   const html = await response.text();
-
-//   const match = html.match(
-//     /content="([\d,]+)\sFollowers,\s([\d,]+)\sFollowing,\s([\d,]+)\sPosts/
-//   );
-
-//   if (!match) {
-//     throw new Error("Unable to parse Instagram profile");
-//   }
-
-//   return {
-//     followers: parseInt(match[1].replace(/,/g, ""), 10),
-//     following: parseInt(match[2].replace(/,/g, ""), 10),
-//     posts: parseInt(match[3].replace(/,/g, ""), 10),
-//   };
-// }
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);

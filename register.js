@@ -5,7 +5,6 @@ dotenv.config();
 
 const TOKEN = process.env.TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
-const CHANNEL_ID = process.env.CHANNEL_ID;
 
 const commands = [
   {
