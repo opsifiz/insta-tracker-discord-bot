@@ -10,7 +10,7 @@ const APIFY_TOKEN = process.env.APIFY_TOKEN;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 async function getInstagramStats(username) {
-  const res = await fetch(`https://serpapi.com/search.html?engine=instagram_profile&profile_id=gethggtl&api_key=${APIFY_TOKEN}`);
+  const res = await fetch(`https://serpapi.com/search.html?engine=instagram_profile&profile_id=${username}&api_key=${APIFY_TOKEN}`);
 
   const data = await res.json();
   const user = data.data.user;
