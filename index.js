@@ -71,11 +71,13 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 
   if (interaction.commandName === 'get') {
-    await interaction.deferReply();
-
-    const username = interaction.options.getString('username') ?? "gethggtl";
-    
     try {
+      // MUST be first async call (no await before this)
+      await interaction.deferReply();
+
+      const username =
+        interaction.options.getString('username') ?? 'gethggtl';
+
       const stats = await getInstagramStats(username);
 
       await interaction.editReply(
@@ -86,9 +88,16 @@ client.on(Events.InteractionCreate, async interaction => {
     } catch (error) {
       console.error(error);
 
-      await interaction.editReply(
-        `❌ Failed to fetch Instagram stats.\n\`\`\`${error.message}\`\`\``
-      );
+      // if deferReply already failed, fallback to reply
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply(
+          `❌ Failed to fetch Instagram stats.\n\`\`\`${error.message}\`\`\``
+        );
+      } else {
+        await interaction.reply(
+          `❌ Failed to fetch Instagram stats.\n\`\`\`${error.message}\`\`\``
+        );
+      }
     }
   }
 });
