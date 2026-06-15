@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const TOKEN = process.env.TOKEN;
+const DEFAULT_USERNAME = process.env.INSTAGRAM_USERNAME;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -76,7 +77,7 @@ client.on(Events.InteractionCreate, async interaction => {
       await interaction.deferReply();
 
       const username =
-        interaction.options.getString('username') ?? 'gethggtl';
+        interaction.options.getString('username') ?? DEFAULT_USERNAME;
 
       const stats = await getInstagramStats(username);
 
