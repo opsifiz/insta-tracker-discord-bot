@@ -23,6 +23,10 @@ const commands = [
       },
     ],
   },
+  {
+    name: "token",
+    description: "ดูจำนวน SerpApi searches ที่เหลือ",
+  },
 ];
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);

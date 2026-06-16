@@ -21,6 +21,25 @@ async function getInstagramStats(username) {
   };
 }
 
+async function getRemainingTokens() {
+  const res = await fetch(
+    `https://serpapi.com/account?api_key=${APIFY_TOKEN}`
+  );
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+
+  return {
+    remaining: data.total_searches_left,
+    used: data.this_month_usage,
+    limit: data.searches_per_month,
+    plan: data.plan_name,
+  };
+}
+
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
 });
@@ -30,19 +49,26 @@ client.on(Events.InteractionCreate, async interaction => {
 
   if (interaction.commandName === 'about') {
     try {
-        if (interaction.commandName === 'about') {
-          await interaction.reply(
-            `🤖 **Instagram Stats Bot**\n\n` +
-            `บอทสำหรับดึงข้อมูล Instagram แบบ real-time\n\n` +
-            `📋 **คำสั่งที่ใช้ได้:**\n` +
-            `• \`/get\` — ดึง stats ของ \`${DEFAULT_USERNAME}\`\n` +
-            `• \`/get username:<ชื่อผู้ใช้>\` — ดึง stats ของ username ที่ระบุ\n` +
-            `• \`/about\` — แสดงข้อมูลบอทนี้`
-          );
-          return;
-        }
-    } catch (e) {
-      console.error(e);
+      await interaction.reply(
+        `🤖 **Instagram Stats Bot**\n\n` +
+        `บอทสำหรับดึงข้อมูล Instagram และตรวจสอบ SerpApi usage\n\n` +
+        `📋 **คำสั่งที่ใช้ได้:**\n` +
+        `• \`/get\` — ดึง stats ของ \`${DEFAULT_USERNAME}\`\n` +
+        `• \`/get username:<ชื่อผู้ใช้>\` — ดึง stats ของ username ที่ระบุ\n` +
+        `• \`/token\` — ดูจำนวน SerpApi searches ที่เหลือ\n` +
+        `• \`/about\` — แสดงข้อมูลบอทนี้`
+      );
+
+      return;
+    } catch (error) {
+      console.error(error);
+
+      if (!interaction.replied) {
+        await interaction.reply({
+          content: '❌ Failed to display bot information.',
+          ephemeral: true,
+        });
+      }
     }
   }
 
@@ -75,6 +101,30 @@ client.on(Events.InteractionCreate, async interaction => {
         );
       }
     }
+  }
+
+  if (interaction.commandName === 'token') {
+    try {
+      await interaction.deferReply();
+
+      const tokenInfo = await getRemainingTokens();
+
+      await interaction.editReply(
+        `🔑 **SerpApi Usage**\n\n` +
+        `📦 Plan: ${tokenInfo.plan}\n` +
+        `📊 Monthly Limit: ${tokenInfo.limit}\n` +
+        `✅ Remaining: ${tokenInfo.remaining}\n` +
+        `📈 Used: ${tokenInfo.used}`
+      );
+    } catch (error) {
+      console.error(error);
+
+      await interaction.editReply(
+        `❌ Failed to fetch token information.\n\`\`\`${error.message}\`\`\``
+      );
+    }
+
+    return;
   }
 });
 
